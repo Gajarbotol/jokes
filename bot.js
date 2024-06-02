@@ -1,4 +1,6 @@
 const TelegramBot = require('node-telegram-bot-api');
+const axios = require('axios');
+const fs = require('fs');
 const express = require('express');
 const app = express();
 
@@ -8,13 +10,35 @@ const token = '6531689450:AAFNTGx4bafhOll-pS2ySRRs7eAsILA9iUw';
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, {polling: true});
 
-bot.onText(/\/start/, (msg) => {
+bot.on('message', (msg) => {
   const chatId = msg.chat.id;
-  const firstName = msg.from.first_name;
-  const lastName = msg.from.last_name;
-  const languageCode = msg.from.language_code;
+  const text = msg.text;
 
-  bot.sendMessage(chatId, `Hello, ${firstName} ${lastName}! Your chat ID is ${chatId} and your language is ${languageCode}.`);
+  // Check if the message is a URL
+  if (text.startsWith('http://') || text.startsWith('https://')) {
+    const url = text;
+    const path = `${Date.now()}.tmp`;
+
+    axios({
+      method: 'get',
+      url: url,
+      responseType: 'stream'
+    })
+    .then(function(response) {
+      const writer = fs.createWriteStream(path);
+      response.data.pipe(writer);
+
+      writer.on('finish', () => {
+        bot.sendDocument(chatId, path).then(() => {
+          fs.unlink(path, (err) => {
+            if (err) console.error(err);
+          });
+        });
+      });
+
+      writer.on('error', console.error);
+    });
+  }
 });
 
 // Start Express server
