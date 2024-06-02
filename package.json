@@ -1,14 +1,15 @@
 {
   "name": "telegram-bot",
   "version": "1.0.0",
-  "description": "A simple Telegram bot",
+  "description": "A Telegram bot that downloads and sends files",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
   },
   "dependencies": {
     "express": "^4.17.1",
-    "node-telegram-bot-api": "^0.52.0"
+    "node-telegram-bot-api": "^0.52.0",
+    "axios": "^0.24.0"
   },
   "engines": {
     "node": "14.x"
