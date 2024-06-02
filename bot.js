@@ -3,6 +3,8 @@ const axios = require('axios');
 const fs = require('fs');
 const express = require('express');
 const app = express();
+const path = require('path');
+const url = require('url');
 
 // replace the value below with the Telegram token you receive from @BotFather
 const token = '6531689450:AAFNTGx4bafhOll-pS2ySRRs7eAsILA9iUw';
@@ -16,21 +18,31 @@ bot.on('message', (msg) => {
 
   // Check if the message is a URL
   if (text.startsWith('http://') || text.startsWith('https://')) {
-    const url = text;
-    const path = `${Date.now()}.tmp`;
+    const fileUrl = url.parse(text);
+    const fileName = path.basename(fileUrl.pathname);
+    const fileExtension = path.extname(fileName).toLowerCase();
+
+    // Check if the file extension is supported
+    const supportedExtensions = ['.mp3', '.mp4', '.apk', '.zip', '.html', '.rar', '.exe', '.png', '.jpeg'];
+    if (!supportedExtensions.includes(fileExtension)) {
+      bot.sendMessage(chatId, 'Sorry, this file type is not supported.');
+      return;
+    }
+
+    const filePath = `${Date.now()}${fileExtension}`;
 
     axios({
       method: 'get',
-      url: url,
+      url: text,
       responseType: 'stream'
     })
     .then(function(response) {
-      const writer = fs.createWriteStream(path);
+      const writer = fs.createWriteStream(filePath);
       response.data.pipe(writer);
 
       writer.on('finish', () => {
-        bot.sendDocument(chatId, path).then(() => {
-          fs.unlink(path, (err) => {
+        bot.sendDocument(chatId, filePath).then(() => {
+          fs.unlink(filePath, (err) => {
             if (err) console.error(err);
           });
         });
