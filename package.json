@@ -1,13 +1,16 @@
 {
-  "name": "telegram-joke-bot",
+  "name": "telegram-bot",
   "version": "1.0.0",
-  "description": "A Telegram bot that tells jokes",
+  "description": "A simple Telegram bot",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
   },
   "dependencies": {
-    "node-telegram-bot-api": "^0.50.0",
-    "axios": "^0.21.1"
+    "express": "^4.17.1",
+    "node-telegram-bot-api": "^0.52.0"
+  },
+  "engines": {
+    "node": "14.x"
   }
 }
